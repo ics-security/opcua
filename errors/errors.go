@@ -10,69 +10,102 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Cause Cause returns the underlying cause of the error, if possible.
-// An error value has a cause if it implements the following interface:
-//
-// This function just wraps the Cause in pkg/errors library.
-func Cause(err error) error {
-	return errors.Cause(err)
+// ErrDecodeFailure indicates the attempt to decode is failed.
+type ErrDecodeFailure struct {
+	Type    interface{}
+	Message string
 }
 
-// Errorf formats according to a format specifier and returns the string as a value
-// that satisfies error. Errorf also records the stack trace at the point it was called.
-//
-// This function just wraps the Errorf in pkg/errors library.
-func Errorf(format string, args ...interface{}) error {
-	return errors.Errorf(format, args...)
+// NewErrDecodeFailure creates a new ErrDecodeFailure with custom message as a reason.
+func NewErrDecodeFailure(decodedType interface{}, msg string) *ErrDecodeFailure {
+	return &ErrDecodeFailure{
+		Type:    decodedType,
+		Message: msg,
+	}
 }
 
-// New returns an error that formats as the given text.
-//
-// This function just wraps the New in pkg/errors library.
-func New(text string) error {
-	return errors.New(text)
+// Error returns the error message for ErrDecodeFailure.
+func (e *ErrDecodeFailure) Error() string {
+	return fmt.Sprintf("failed to decode %T: %s", e.Type, e.Message)
 }
 
-// WithMessage annotates err with a new message. If err is nil, WithMessage returns nil.
-//
-// This function just wraps the WithMessage in pkg/errors library.
-func WithMessage(err error, message string) error {
-	return errors.WithMessage(err, message)
+// ErrSerializeFailure indicates the attempt to serialize is failed.
+type ErrSerializeFailure struct {
+	Type    interface{}
+	Message string
 }
 
-// WithStack annotates err with a stack trace at the point WithStack was called.
-// If err is nil, WithStack returns nil.
-//
-// This function just wraps the WithStack in pkg/errors library.
-func WithStack(err error) error {
-	return errors.WithStack(err)
+// NewErrSerializeFailure creates a new ErrSerializeFailure with custom message as a reason.
+func NewErrSerializeFailure(serializedType interface{}, msg string) *ErrSerializeFailure {
+	return &ErrSerializeFailure{
+		Type:    serializedType,
+		Message: msg,
+	}
 }
 
-// Wrap returns an error annotating err with a stack trace at the point Wrap is called,
-// and the supplied message. If err is nil, Wrap returns nil.
-//
-// This function just wraps the Wrap in pkg/errors library.
-func Wrap(err error, message string) error {
-	return errors.Wrap(err, message)
+// Error returns the error message for ErrSerializeFailure.
+func (e *ErrSerializeFailure) Error() string {
+	return fmt.Sprintf("failed to serialize %T: %s", e.Type, e.Message)
 }
 
-// Wrapf returns an error annotating err with a stack trace at the point Wrapf is called,
-// and the format specifier. If err is nil, Wrapf returns nil.
-//
-// This function just wraps the Wrapf in pkg/errors library.
-func Wrapf(err error, format string, args ...interface{}) error {
-	return errors.Wrapf(err, format, args...)
+// ErrUnsupported indicates the value in Version field is invalid.
+type ErrUnsupported struct {
+	Type    interface{}
+	Message string
 }
 
-// Frame represents a program counter inside a stack frame.
-//
-// This type is just an alias of Frame in pkg/errors library.
-type Frame = errors.Frame
+// NewErrUnsupported creates a ErrUnsupported.
+func NewErrUnsupported(unsupportedType interface{}, msg string) *ErrUnsupported {
+	return &ErrUnsupported{
+		Type:    unsupportedType,
+		Message: msg,
+	}
+}
 
-// StackTrace is stack of Frames from innermost (newest) to outermost (oldest).
-//
-// This type is just an alias of Frame in pkg/errors library.
-type StackTrace = errors.StackTrace
+// Error returns the type of receiver and some additional message.
+func (e *ErrUnsupported) Error() string {
+	return fmt.Sprintf("unsupported %T: %s", e.Type, e.Message)
+}
+
+// ErrUnexpected indicates the given value is not expected.
+type ErrUnexpected struct {
+	Value   interface{}
+	Message string
+}
+
+// NewErrUnexpected creates a ErrUnexpected.
+func NewErrUnexpected(unexpected interface{}, msg string) *ErrUnexpected {
+	return &ErrUnexpected{
+		Value:   unexpected,
+		Message: msg,
+	}
+}
+
+// Error returns the type of receiver and some additional message.
+func (e *ErrUnexpected) Error() string {
+	return fmt.Sprintf("%s is unexpected: %s", e.Value, e.Message)
+}
+
+// ErrNetworkNotAvailable indicates a required network object is not available.
+type ErrNetworkNotAvailable struct {
+	Type    interface{}
+	Message string
+}
+
+// NewErrNetworkNotAvailable creates a new ErrNetworkNotAvailable with custom message as a reason.
+func NewErrNetworkNotAvailable(network interface{}, msg string) *ErrNetworkNotAvailable {
+	return &ErrNetworkNotAvailable{
+		Type:    network,
+		Message: msg,
+	}
+}
+
+// Error returns the type of network unavailable with custom message.
+func (e *ErrNetworkNotAvailable) Error() string {
+	return fmt.Sprintf("network %T is not available: %s", e.Type, e.Message)
+}
+
+/* XXX - obsoleted
 
 // ErrTooShortToDecode indicates the length of user input is too short to be decoded.
 type ErrTooShortToDecode struct {
@@ -110,25 +143,6 @@ func NewErrInvalidLength(rcvType interface{}, msg string) *ErrInvalidLength {
 // Error returns the type of receiver and some additional message.
 func (e *ErrInvalidLength) Error() string {
 	return fmt.Sprintf("got invalid Length in %T: %s", e.Type, e.Message)
-}
-
-// ErrUnsupported indicates the value in Version field is invalid.
-type ErrUnsupported struct {
-	Type    interface{}
-	Message string
-}
-
-// NewErrUnsupported creates a ErrUnsupported.
-func NewErrUnsupported(unsupportedType interface{}, msg string) *ErrUnsupported {
-	return &ErrUnsupported{
-		Type:    unsupportedType,
-		Message: msg,
-	}
-}
-
-// Error returns the type of receiver and some additional message.
-func (e *ErrUnsupported) Error() string {
-	return fmt.Sprintf("unsupported %T: %s", e.Type, e.Message)
 }
 
 // ErrInvalidType indicates the value in Type/Code field is invalid.
@@ -170,3 +184,63 @@ func NewErrReceiverNil(rcvType interface{}) *ErrReceiverNil {
 func (e *ErrReceiverNil) Error() string {
 	return fmt.Sprintf("Receiver %T is nil.", e.Type)
 }
+*/
+
+// Cause is just a wrapper of Cause() in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#Cause for detail.
+func Cause(err error) error {
+	return errors.Cause(err)
+}
+
+// Errorf is just a wrapper of Errorf() in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#Errorf for detail.
+func Errorf(format string, args ...interface{}) error {
+	return errors.Errorf(format, args...)
+}
+
+// New is just a wrapper of New() in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#New for detail.
+func New(text string) error {
+	return errors.New(text)
+}
+
+// WithMessage is just a wrapper of WithMessage() in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#WithMessage for detail.
+func WithMessage(err error, message string) error {
+	return errors.WithMessage(err, message)
+}
+
+// WithStack is just a wrapper of WithStack() in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#WithStack for detail.
+func WithStack(err error) error {
+	return errors.WithStack(err)
+}
+
+// Wrap is just a wrapper of Wrap() in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#Wrap for detail.
+func Wrap(err error, message string) error {
+	return errors.Wrap(err, message)
+}
+
+// Wrapf is just a wrapper of Wrapf() in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#Wrapf for detail.
+func Wrapf(err error, format string, args ...interface{}) error {
+	return errors.Wrapf(err, format, args...)
+}
+
+// Frame is just a wrapper of Frame in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#Frame for detail.
+type Frame = errors.Frame
+
+// StackTrace is just a wrapper of StackTrace in pkg/errors
+//
+// See https://godoc.org/github.com/pkg/errors#StackTrace for detail.
+type StackTrace = errors.StackTrace

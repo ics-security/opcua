@@ -5,6 +5,8 @@
 package datatypes
 
 import (
+	"fmt"
+
 	"github.com/wmnsk/gopcua/errors"
 	"github.com/wmnsk/gopcua/id"
 )
@@ -50,7 +52,10 @@ func (v *Variant) DecodeFromBytes(b []byte) error {
 	case id.Float:
 		v.Value = &Float{}
 	default:
-		return errors.NewErrInvalidType(v.EncodingMask, "decode", "got undefined type")
+		return errors.NewErrUnexpected(
+			v,
+			fmt.Sprintf("got undefined type: %d", v.EncodingMask),
+		)
 	}
 
 	if err := v.Value.DecodeFromBytes(b[1:]); err != nil {

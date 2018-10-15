@@ -55,7 +55,10 @@ func DecodeNodeID(b []byte) (NodeID, error) {
 	case TypeOpaque:
 		n = &OpaqueNodeID{}
 	default:
-		return nil, errors.NewErrInvalidType(encodingMask, "decode", "got undefined type")
+		return nil, errors.NewErrDecodeFailure(
+			nil,
+			fmt.Sprintf("invalid NodeID type: %d", encodingMask),
+		)
 	}
 
 	if err := n.DecodeFromBytes(b); err != nil {
@@ -85,8 +88,12 @@ func NewTwoByteNodeID(val byte) *TwoByteNodeID {
 
 // DecodeFromBytes decodes given bytes into TwoByteNodeID.
 func (t *TwoByteNodeID) DecodeFromBytes(b []byte) error {
-	if len(b) < 2 {
-		return errors.NewErrTooShortToDecode(t, "should be 2 bytes")
+	minLen := 2
+	if len(b) < minLen {
+		return errors.NewErrDecodeFailure(
+			t,
+			fmt.Sprintf("should be longer than %d bytes", minLen),
+		)
 	}
 
 	t.EncodingMask = b[0]
@@ -165,8 +172,12 @@ func NewFourByteNodeID(idx uint8, val uint16) *FourByteNodeID {
 
 // DecodeFromBytes decodes given bytes into FourByteNodeID.
 func (f *FourByteNodeID) DecodeFromBytes(b []byte) error {
-	if len(b) < 4 {
-		return errors.NewErrTooShortToDecode(f, "should be 4 bytes")
+	minLen := 4
+	if len(b) < minLen {
+		return errors.NewErrDecodeFailure(
+			f,
+			fmt.Sprintf("should be longer than %d bytes", minLen),
+		)
 	}
 
 	f.EncodingMask = b[0]
@@ -250,8 +261,12 @@ func NewNumericNodeID(idx uint16, val uint32) *NumericNodeID {
 
 // DecodeFromBytes decodes given bytes into NumericNodeID.
 func (n *NumericNodeID) DecodeFromBytes(b []byte) error {
-	if len(b) < 7 {
-		return errors.NewErrTooShortToDecode(n, "should be 7 bytes")
+	minLen := 7
+	if len(b) < minLen {
+		return errors.NewErrDecodeFailure(
+			n,
+			fmt.Sprintf("should be longer than %d bytes", minLen),
+		)
 	}
 
 	n.EncodingMask = b[0]
@@ -336,8 +351,12 @@ func NewStringNodeID(idx uint16, val string) *StringNodeID {
 
 // DecodeFromBytes decodes given bytes into StringNodeID.
 func (s *StringNodeID) DecodeFromBytes(b []byte) error {
-	if len(b) < 7 {
-		return errors.NewErrTooShortToDecode(s, "should be longer than 7 bytes")
+	minLen := 7
+	if len(b) < minLen {
+		return errors.NewErrDecodeFailure(
+			s,
+			fmt.Sprintf("should be longer than %d bytes", minLen),
+		)
 	}
 
 	s.EncodingMask = b[0]
@@ -425,8 +444,12 @@ func NewGUIDNodeID(idx uint16, val string) *GUIDNodeID {
 
 // DecodeFromBytes decodes given bytes into GUIDNodeID.
 func (g *GUIDNodeID) DecodeFromBytes(b []byte) error {
-	if len(b) < 19 {
-		return errors.NewErrTooShortToDecode(g, "should be 19 bytes")
+	minLen := 19
+	if len(b) < minLen {
+		return errors.NewErrDecodeFailure(
+			g,
+			fmt.Sprintf("should be longer than %d bytes", minLen),
+		)
 	}
 
 	g.EncodingMask = b[0]
@@ -514,8 +537,12 @@ func NewOpaqueNodeID(idx uint16, val []byte) *OpaqueNodeID {
 
 // DecodeFromBytes decodes given bytes into OpaqueNodeID.
 func (o *OpaqueNodeID) DecodeFromBytes(b []byte) error {
-	if len(b) < 7 {
-		return errors.NewErrTooShortToDecode(o, "should be longer than 7 bytes")
+	minLen := 7
+	if len(b) < minLen {
+		return errors.NewErrDecodeFailure(
+			o,
+			fmt.Sprintf("should be longer than %d bytes", minLen),
+		)
 	}
 
 	o.EncodingMask = b[0]

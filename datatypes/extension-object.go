@@ -72,7 +72,7 @@ func (e *ExtensionObject) DecodeFromBytes(b []byte) error {
 	case *NumericNodeID:
 		id = int(binary.LittleEndian.Uint32(nodeID.GetIdentifier()))
 	default:
-		return errors.NewErrInvalidType(e.TypeID.NodeID, "decode", "NodeID should be TwoByte, FourByte or Numeric")
+		return errors.NewErrUnexpected(e.TypeID.NodeID, "NodeID should be TwoByte, FourByte or Numeric")
 	}
 	val, err := DecodeExtensionObjectValue(b[offset:], int(id))
 	if err != nil {
@@ -207,7 +207,7 @@ func DecodeExtensionObjectValue(b []byte, typ int) (ExtensionObjectValue, error)
 	case id.IssuedIdentityToken_Encoding_DefaultBinary:
 		e = &IssuedIdentityToken{}
 	default:
-		return nil, errors.NewErrInvalidType(typ, "decode", "should be a type of ExtensionObjectValue")
+		return nil, errors.NewErrUnexpected(typ, "should be a type of ExtensionObjectValue")
 	}
 
 	if err := e.DecodeFromBytes(b); err != nil {
