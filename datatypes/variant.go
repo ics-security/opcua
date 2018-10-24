@@ -47,12 +47,21 @@ func (v *Variant) DecodeFromBytes(b []byte) error {
 		v.Value = &Boolean{}
 	case id.LocalizedText:
 		v.Value = &LocalizedText{}
-	case id.Float:
-		v.Value = &Float{}
+	case id.Int32:
+		v.Value = &Int32{}
 	case id.Int64:
 		v.Value = &Int64{}
+	case id.UInt32:
+		v.Value = &UInt32{}
+	case id.UInt64:
+		v.Value = &UInt64{}
+	case id.Float:
+		v.Value = &Float{}
+	//case id.Double:
+	case id.String:
+		v.Value = &String{}
 	default:
-		return errors.NewErrInvalidType(v.EncodingMask, "decode", "got undefined type")
+		return errors.NewErrInvalidType(v, "decode", "got unimplemented type")
 	}
 
 	if err := v.Value.DecodeFromBytes(b[1:]); err != nil {

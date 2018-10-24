@@ -4,9 +4,59 @@
 
 package datatypes
 
-import "encoding/binary"
+import (
+	"encoding/binary"
 
-// Uint32Array represents the array of Uint32 type of data.
+	"github.com/wmnsk/gopcua/errors"
+	"github.com/wmnsk/gopcua/id"
+)
+
+// UInt32 represents datatype UInt32.
+//
+// This type exists for handling primitive types in Variant.Value, which should
+// implement Data interface.
+type UInt32 struct {
+	Value uint32
+}
+
+// DecodeFromBytes decodes given bytes into UInt32.
+func (i *UInt32) DecodeFromBytes(b []byte) error {
+	if len(b) < 4 {
+		return errors.NewErrTooShortToDecode(i, "should be longer")
+	}
+
+	i.Value = binary.LittleEndian.Uint32(b[:4])
+	return nil
+}
+
+// Serialize serializes UInt32 into bytes.
+func (i *UInt32) Serialize() ([]byte, error) {
+	b := make([]byte, i.Len())
+	if err := i.SerializeTo(b); err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// SerializeTo serializes UInt32 into bytes.
+func (i *UInt32) SerializeTo(b []byte) error {
+	binary.LittleEndian.PutUint32(b[:4], uint32(i.Value))
+
+	return nil
+}
+
+// Len returns the actual length of Variant in int.
+func (i *UInt32) Len() int {
+	return 4
+}
+
+// DataType returns type of Data.
+func (i *UInt32) DataType() uint16 {
+	return id.UInt32
+}
+
+// Uint32Array represents the array of uint32 type of data.
 type Uint32Array struct {
 	ArraySize int32
 	Values    []uint32

@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/wmnsk/gopcua/errors"
+	"github.com/wmnsk/gopcua/id"
 )
 
 // String represents the String type in OPC UA Specifications. This consists of the four-byte length field and variable length of contents.
@@ -99,6 +100,11 @@ func (s *String) Set(str string) {
 // String returns String in string.
 func (s *String) String() string {
 	return fmt.Sprintf("%d, %s", s.Length, s.Get())
+}
+
+// DataType returns type of Data.
+func (s *String) DataType() uint16 {
+	return id.String
 }
 
 // StringArray represents the StringArray.
