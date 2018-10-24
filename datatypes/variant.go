@@ -49,6 +49,8 @@ func (v *Variant) DecodeFromBytes(b []byte) error {
 		v.Value = &LocalizedText{}
 	case id.Float:
 		v.Value = &Float{}
+	case id.Int64:
+		v.Value = &Int64{}
 	default:
 		return errors.NewErrInvalidType(v.EncodingMask, "decode", "got undefined type")
 	}
