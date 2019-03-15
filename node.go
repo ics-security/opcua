@@ -25,6 +25,15 @@ func (a *Node) NodeClass() (ua.NodeClass, error) {
 	return ua.NodeClass(v.Int()), nil
 }
 
+// AccessLevel returns the access level of the node.
+func (a *Node) AccessLevel() (byte, error) {
+	v, err := a.Attribute(ua.IntegerIDAccessLevel)
+	if err != nil {
+		return 0, err
+	}
+	return v.Value.(byte), nil
+}
+
 // BrowseName returns the browse name of the node.
 func (a *Node) BrowseName() (*ua.QualifiedName, error) {
 	v, err := a.Attribute(ua.IntegerIDBrowseName)
@@ -32,6 +41,19 @@ func (a *Node) BrowseName() (*ua.QualifiedName, error) {
 		return nil, err
 	}
 	return v.Value.(*ua.QualifiedName), nil
+}
+
+func (a *Node) Children() ([]*Node, error) {
+	return nil, nil
+}
+
+// DisplayName returns the display name of the node.
+func (a *Node) Description() (*ua.LocalizedText, error) {
+	v, err := a.Attribute(ua.IntegerIDDescription)
+	if err != nil {
+		return nil, err
+	}
+	return v.Value.(*ua.LocalizedText), nil
 }
 
 // DisplayName returns the display name of the node.

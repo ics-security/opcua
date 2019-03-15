@@ -1,5 +1,17 @@
 package ua
 
+type AccessLevel uint32
+
+const (
+	AccessLevelCurrentRead    = 0
+	AccessLevelCurrentWrite   = 1
+	AccessLevelHistoryRead    = 2
+	AccessLevelHistoryWrite   = 3
+	AccessLevelSemanticChange = 4
+	AccessLevelStatusWrite    = 5
+	AccessLevelTimestampWrite = 6
+)
+
 type BrowseDirection uint32
 
 const (
