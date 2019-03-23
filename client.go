@@ -71,9 +71,43 @@ func (c *Client) Node(id *ua.NodeID) *Node {
 }
 
 // Read executes a synchronous read request.
+// Unless specified differently, the function requests the value of the nodes
+// in the default encoding of the server.
 func (c *Client) Read(req *ua.ReadRequest) (*ua.ReadResponse, error) {
+	// clone the request and the ReadValueIDs to set defaults without
+	// manipulating them in-place.
+	rvs := make([]*ua.ReadValueID, len(req.NodesToRead))
+	for i, rv := range req.NodesToRead {
+		if rv.AttributeID != 0 && rv.DataEncoding != nil {
+			rvs[i] = rv
+			continue
+		}
+
+		rvs[i] = &ua.ReadValueID{
+			NodeID:       rv.NodeID,
+			AttributeID:  rv.AttributeID,
+			IndexRange:   rv.IndexRange,
+			DataEncoding: rv.DataEncoding,
+		}
+
+		// request value if no attribute is specified
+		if rvs[i].AttributeID == 0 {
+			rvs[i].AttributeID = ua.IntegerIDValue
+		}
+
+		// use default encoding if no encoding is specified
+		if rvs[i].DataEncoding == nil {
+			rvs[i].DataEncoding = &ua.QualifiedName{}
+		}
+	}
+	req2 := &ua.ReadRequest{
+		MaxAge:             req.MaxAge,
+		TimestampsToReturn: req.TimestampsToReturn,
+		NodesToRead:        rvs,
+	}
+
 	var res *ua.ReadResponse
-	err := c.sechan.Send(req, func(v interface{}) error {
+	err := c.sechan.Send(req2, func(v interface{}) error {
 		r, ok := v.(*ua.ReadResponse)
 		if !ok {
 			return fmt.Errorf("invalid response: %T", v)
